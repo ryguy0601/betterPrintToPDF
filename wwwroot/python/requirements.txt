@@ -1,0 +1,11 @@
+# Web scraping / async
+scrapy
+twisted
+crochet
+
+# Browser automation
+selenium
+
+# Images / PDFs
+Pillow
+pypdf

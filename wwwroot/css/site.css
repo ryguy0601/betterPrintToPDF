@@ -1,0 +1,106 @@
+/* Set width on the form input elements since they're 100% wide by default */
+input,
+select,
+textarea {
+    max-width: 280px;
+}
+
+/* Ensure dark mode is always on */
+html, body {
+    /* Activate Bootstrap dark theme globally */
+    --bs-body-bg: #121212;
+    --bs-body-color: #eee;
+}
+
+/*button animation start*/
+.btn {
+    font-family: Arial, Helvetica, sans-serif;
+    padding: 0.5em 1.5em;
+    cursor: pointer;
+    border: 1px solid transparent;
+    font-size: large;
+}
+
+    .btn.btn-blue {
+        transition: background 0.4s cubic-bezier(0.45, .55, .65, -.5), color 0s ease 0.4s;
+        border: 1px solid #0d6dfd;
+        color: #ffffff;
+        background: linear-gradient(to right, #0d6dfd 50%, #0d6dfd 50%);
+        background-size: 0% 100%;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+
+        .btn.btn-blue:hover {
+            background-size: 100% 100%;
+        }
+/*button animation end*/
+/*nav start*/
+#nav-toggle {
+    position: fixed;
+    top: 5px;
+    left: 5px;
+    z-index: 1000;
+}
+
+#sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: -250px; /* hidden by default */
+    width: 250px;
+    padding: 1rem;
+    border-bottom-left-radius: 0px !important;
+    border-top-left-radius: 0px !important;
+    color: white;
+    z-index: 1030;
+    transition: left 0.3s ease-in-out;
+}
+
+    #sidebar.show {
+        left: 0;
+    }
+
+#sideNavClose {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+}
+
+.nav-link {
+    color: var(--bs-nav-pills-link-active-color);
+    background: linear-gradient(to right, currentColor 0%, currentColor 100%);
+    padding-left: 0px;
+    padding-right: 0px;
+    background-size: 0% 6%;
+    background-position: left 100%;
+    background-repeat: no-repeat;
+    width: fit-content;
+    transition: .3s ease-in-out;
+}
+
+    .nav-link.active {
+        background-color: transparent !important;
+    }
+
+    .nav-link.active, .nav-link:hover {
+        background-size: 100% 6%;
+        background-position: left 100%;
+    }
+
+/*nav end*/
+
+
+#main-content {
+    min-height: 75vh;
+}
+
+
+
+
+
+/*footer Start*/
+
+
+
+/*footer End*/

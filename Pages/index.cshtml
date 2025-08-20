@@ -1,0 +1,183 @@
+﻿@page
+@model WebApplication1.Pages.RunPythonModel
+@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="container">
+
+    <form method="post">
+
+        <div class="row mb-3 align-items-center d-flex justify-content-center">
+            <div class="col-auto">
+                <label for="SiteSelector" class="form-label h5 mb-0">Selected Stage Site:</label>
+            </div>
+            <div class="col-auto">
+                <select asp-for="site" id="SiteSelector" class="form-select">
+                    <option value="null" id="tempDropDownItem">Select Site</option>
+                    @foreach (var site in Model.Sites)
+                    {
+                        <option value="@site.Key">@site.Key</option>
+                    }
+                    <option value="other">Custom URL</option>
+                </select>
+            </div>
+            <div class="col-auto">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" asp-for="res" id="desktop" value="desktop" checked />
+                    <label class="form-check-label" for="desktop">Desktop</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" asp-for="res" id="mobile" value="mobile" />
+                    <label class="form-check-label" for="mobile">Mobile</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" asp-for="res" id="both" value="both" />
+                    <label class="form-check-label" for="both">Desktop & Mobile</label>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" asp-for="env" id="prod" value="p" checked/>
+                    <label class="form-check-label" for="prod">Prod</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" asp-for="env" id="stage" value="s"  />
+                    <label class="form-check-label" for="stage">Stage</label>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="passCheckBox" value="p"/>
+                    <label class="form-check-label" for="passCheckBox">Password Protected</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-3 d-flex justify-content-center">
+            <div id="customSiteContainer" class="col-auto d-none">
+                <input asp-for="customSite" id="customSite" type="url" class="form-control" placeholder="example.com" />
+                <small class="text-muted white">This will ATTEMPT to get all associated sites.</small>
+            </div>
+            <div id="usernameContainer" class="col-auto d-none">
+                <input asp-for="username" id="UserName" type="url" class="form-control" placeholder="Username" />
+            </div>
+            <div id="passwordContainer" class="col-auto d-none">
+                <input asp-for="password" id="Password" type="url" class="form-control" placeholder="Password" />
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <button id="scanChoiceSubmit" type="submit" class="btn btn-blue w-100" disabled>Scan</button>
+        </div>
+    </form>
+
+</div>
+
+@section scripts {
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let dropDown = document.getElementById("SiteSelector");
+        let passCheckBox = document.getElementById("passCheckBox");
+        let usernameContainer = document.getElementById("usernameContainer");
+        let passwordContainer = document.getElementById("passwordContainer");
+        let customInput = document.getElementById("customSiteContainer");
+        let tempDropItem = document.getElementById("tempDropDownItem");
+        let submitBtn = document.getElementById('scanChoiceSubmit')
+
+
+        function customURL() {
+            tempDropItem.disabled = true;
+            if (dropDown.value == 'null') {
+                submitBtn.disabled = true;
+            } else {
+                submitBtn.disabled = false;
+            }
+            if (dropDown.value === "other") {
+                customInput.classList.remove("d-none");
+            } else {
+                customInput.classList.add("d-none");
+            }
+        }
+
+        function showUserAndPass() {
+            if (passCheckBox.checked) {
+                usernameContainer.classList.remove("d-none");
+                passwordContainer.classList.remove("d-none");
+            } else {
+                usernameContainer.classList.add("d-none");
+                passwordContainer.classList.add("d-none");
+            }
+        }
+
+        dropDown.addEventListener("change", customURL);
+        passCheckBox.addEventListener("change", showUserAndPass);
+    });
+
+</script>
+
+<script>
+
+    submitBtn = document.getElementById('scanChoiceSubmit')
+    progress = document.getElementById('progress')
+
+    submitBtn.addEventListener('click', function () {
+        progress.classList.remove("d-none");
+    })
+    let jobId = window.location.href.split('/')
+    jobId = jobId[jobId.length - 1]
+    console.log(jobId)
+
+    function checkProgress() {
+        fetch('/progress')
+            .then(response => response.json())
+            .then(data => {
+                const job = data[jobId]; // dynamic access to job data by UUID
+
+                if (!job) {
+                    console.error(`No job found for UUID: ${jobId}`);
+                    return;
+                }
+
+                // Update progress bar width
+                const percent = (job.current_page / job.total_pages) * 100;
+                document.getElementById("percentDone").style.width = `${percent}%`;
+
+                // Update counter and status
+                document.getElementById("counter").textContent = `${job.current_page} of ${job.total_pages}`;
+                document.getElementById("status").textContent = job.status;
+
+                // Continue or redirect
+                if (!job.done) {
+                    setTimeout(checkProgress, 1000);
+                } else {
+                    document.getElementById("progress").classList.add("d-none");
+                    window.location.href = `/preview/${jobId}`;
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching progress:", error);
+            });
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Check if progress has started
+        fetch('/progress')
+            .then(response => response.json())
+            .then(data => {
+                const job = data[jobId];
+                if (job) {
+                    console.log("Done?", job.done);
+                    if (!job.done && !progress.classList.contains('d-none')) {
+                        checkProgress();
+                    }
+                } else {
+                    console.error("No job found for ID:", jobId);
+                }
+            });
+
+    });
+
+</script>
+}
