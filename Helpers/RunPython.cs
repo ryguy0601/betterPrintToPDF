@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
@@ -15,7 +15,9 @@ namespace WebApplication1.wwwroot.Helpers
     }
     public class RunPython : Controller
     {
-        private readonly string pythonPath = "C:\\Users\\ryguy\\AppData\\Local\\Microsoft\\WindowsApps\\python.exe";
+        private readonly string pythonPath = OperatingSystem.IsWindows()
+            ? "C:\\Users\\ryguy\\AppData\\Local\\Microsoft\\WindowsApps\\python.exe"
+            : (System.IO.File.Exists("/usr/bin/python3") ? "/usr/bin/python3" : "python3");
 
         public Dictionary<string, SiteInfo> getJson()
         {
